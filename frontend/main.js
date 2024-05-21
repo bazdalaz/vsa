@@ -1,5 +1,6 @@
 const startButton = document.getElementById('startButton');
 const stopButton = document.getElementById('stopButton');
+const downloadLink = document.getElementById('downloadLink');
 const resultDiv = document.getElementById('result');
 let intervalId;
 let mediaRecorder;
@@ -17,6 +18,12 @@ async function startRecording() {
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
         const formData = new FormData();
         formData.append('audio', audioBlob);
+
+        // Create a URL for the audio blob and set it as the href for the download link
+        const audioUrl = URL.createObjectURL(audioBlob);
+        downloadLink.href = audioUrl;
+        downloadLink.download = 'recorded_sample.webm';
+        downloadLink.style.display = 'inline-block';
 
         const response = await fetch('/analyze', {
             method: 'POST',
@@ -38,6 +45,7 @@ async function startRecording() {
 startButton.addEventListener('click', () => {
     startButton.style.display = 'none';
     stopButton.style.display = 'inline-block';
+    downloadLink.style.display = 'none';
     intervalId = setInterval(startRecording, 30000); // Record every 30 seconds
     startRecording(); // Start immediately
 });
@@ -50,4 +58,3 @@ stopButton.addEventListener('click', () => {
         mediaRecorder.stop(); // Stop any ongoing recording
     }
 });
-
