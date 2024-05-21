@@ -13,8 +13,10 @@ def process_audio(audio_data):
     recognizer = sr.Recognizer()
 
     try:
-        # Save the BytesIO object to a temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as temp_file:
+        # Save the BytesIO object to a temporary file in the persistent /tmp directory
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=".webm", dir="/tmp"
+        ) as temp_file:
             temp_file.write(audio_data)
             temp_filename = temp_file.name
 

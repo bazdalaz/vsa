@@ -25,7 +25,7 @@ async function startRecording() {
         downloadLink.download = 'recorded_sample.webm';
         downloadLink.style.display = 'inline-block';
 
-        const response = await fetch('/analyze', {
+        const response = await fetch('http://localhost:8000/analyze', {
             method: 'POST',
             body: formData
         });
