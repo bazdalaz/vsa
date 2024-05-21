@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, Depends, HTTPException
+from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, Query
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 @app.post("/analyze")
 async def analyze_audio(audio: UploadFile = File(...), db: Session = Depends(get_db)):
-    try: 
+    try:
         audio_data = await audio.read()  # Read the audio file data
         text = process_audio(audio_data)
         sentiment = analyze_sentiment(text)
@@ -37,23 +37,25 @@ async def analyze_audio(audio: UploadFile = File(...), db: Session = Depends(get
             content={
                 "id": result.id,
                 "text": result.text,
-                # "sentiment": {"label": sentiment["label"], "score": sentiment["score"]},
-                "sentiment": {"label": "Violent speech", "score": 78},
+                "sentiment": {"label": sentiment["label"], "score": sentiment["score"]},
             }
         )
     except Exception as e:
         logger.error(f"Error processing audio: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error processing audio: {str(e)}")
-# 
 
 
 @app.get("/results")
-async def get_results(db: Session = Depends(get_db)):
-    results = db.query(AnalysisResult).all()
-    return [
-        {"id": result.id, "text": result.text, "sentiment": result.sentiment}
-        for result in results
-    ]
+async def get_results(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    results = db.query(AnalysisResult).offset(skip).limit(limit).all()
+    total = db.query(AnalysisResult).count()
+    return {
+        "total": total,
+        "results": [
+            {"id": result.id, "text": result.text, "sentiment": result.sentiment}
+            for result in results
+        ],
+    }
 
 
 if __name__ == "__main__":

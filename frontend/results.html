@@ -17,6 +17,15 @@
             #results {
                 margin-top: 20px;
             }
+
+            .pagination {
+                display: flex;
+                justify-content: center;
+            }
+
+            .pagination li {
+                margin: 0 5px;
+            }
         </style>
     </head>
 
@@ -51,6 +60,7 @@
                 <div class="col text-center">
                     <h1>Analysis Results</h1>
                     <div id="results" class="mt-4"></div>
+                    <ul id="pagination" class="pagination"></ul>
                 </div>
             </div>
         </div>
@@ -60,9 +70,17 @@
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
         <script>
-            async function fetchResults() {
-                const response = await fetch('/results');
-                const results = await response.json();
+            let currentPage = 1;
+            const resultsPerPage = 10;
+
+            async function fetchResults(page) {
+                const response = await fetch(`/results?skip=${(page - 1) * resultsPerPage}&limit=${resultsPerPage}`);
+                const data = await response.json();
+                displayResults(data.results);
+                setupPagination(data.total, page);
+            }
+
+            function displayResults(results) {
                 const resultsDiv = document.getElementById('results');
                 resultsDiv.innerHTML = results.map(result => `
                 <div class="card mb-3">
@@ -74,7 +92,26 @@
             `).join('');
             }
 
-            document.addEventListener('DOMContentLoaded', fetchResults);
+            function setupPagination(totalResults, currentPage) {
+                const totalPages = Math.ceil(totalResults / resultsPerPage);
+                const paginationUl = document.getElementById('pagination');
+                paginationUl.innerHTML = '';
+
+                for (let i = 1; i <= totalPages; i++) {
+                    const li = document.createElement('li');
+                    li.className = 'page-item ' + (i === currentPage ? 'active' : '');
+                    li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                    li.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        fetchResults(i);
+                    });
+                    paginationUl.appendChild(li);
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                fetchResults(currentPage);
+            });
         </script>
     </body>
 
