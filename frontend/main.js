@@ -18,7 +18,7 @@ async function startRecording() {
         const formData = new FormData();
         formData.append('audio', audioBlob);
 
-        const response = await fetch('http://localhost:8000/analyze', {
+        const response = await fetch('/analyze', {
             method: 'POST',
             body: formData
         });
@@ -50,3 +50,4 @@ stopButton.addEventListener('click', () => {
         mediaRecorder.stop(); // Stop any ongoing recording
     }
 });
+
