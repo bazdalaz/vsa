@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+speechrecognition
+transformers
+sqlalchemy
+databases
+torch
+pydub
