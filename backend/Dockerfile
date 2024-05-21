@@ -4,7 +4,7 @@ FROM python:3.9
 # Set the working directory
 WORKDIR /app
 
-# Install FLAC and ffmpeg utility
+# Install dependencies
 RUN apt-get update && apt-get install -y flac ffmpeg
 
 # Copy the current directory contents into the container at /app

@@ -7,18 +7,18 @@ let audioChunks = [];
 
 async function startRecording() {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
 
     mediaRecorder.ondataavailable = event => {
         audioChunks.push(event.data);
     };
 
     mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunks);
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
         const formData = new FormData();
         formData.append('audio', audioBlob);
 
-        const response = await fetch('http://localhost:8000/analyze', {  // Make sure the URL matches the backend service
+        const response = await fetch('http://localhost:8000/analyze', {
             method: 'POST',
             body: formData
         });
