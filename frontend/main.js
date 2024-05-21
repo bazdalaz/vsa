@@ -46,7 +46,7 @@ startButton.addEventListener('click', () => {
     startButton.style.display = 'none';
     stopButton.style.display = 'inline-block';
     downloadLink.style.display = 'none';
-    intervalId = setInterval(startRecording, 30000); // Record every 30 seconds
+    intervalId = setInterval(startRecording, 10000); // Record every 10 seconds
     startRecording(); // Start immediately
 });
 

@@ -6,7 +6,6 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     volumes:
-      - tmp:/tmp  # Use a named volume for the /tmp
       - ./backend:/app
     ports:
       - "8000:8000"
