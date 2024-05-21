@@ -1,12 +1,11 @@
-from sqlalchemy import create_engine, Column, Integer, String, Text
+from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
+from datetime import datetime
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -17,6 +16,8 @@ class AnalysisResult(Base):
     id = Column(Integer, primary_key=True, index=True)
     text = Column(Text, nullable=False)
     sentiment = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
 def get_db():
@@ -27,7 +28,7 @@ def get_db():
         db.close()
 
 
-def create_analysis_result(db: Session, text: str, sentiment: str) -> AnalysisResult:
+def create_analysis_result(db: Session, text: str, sentiment: str):
     result = AnalysisResult(text=text, sentiment=sentiment)
     db.add(result)
     db.commit()

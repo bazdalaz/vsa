@@ -6,15 +6,26 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     volumes:
+      - tmp:/tmp  # Use a named volume for the /tmp
       - ./backend:/app
-      - ./backend/tmp:/tmp  # Map the host directory to the container's /tmp directory
     ports:
       - "8000:8000"
     environment:
       - DATABASE_URL=sqlite:///./test.db
+    networks:
+      - app-network
+
   frontend:
     image: nginx:alpine
     volumes:
       - ./frontend:/usr/share/nginx/html
     ports:
       - "80:80"
+    networks:
+      - app-network
+
+volumes:
+  tmp:
+
+networks:
+  app-network:

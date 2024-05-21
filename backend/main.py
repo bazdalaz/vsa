@@ -25,38 +25,34 @@ Base.metadata.create_all(bind=engine)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 @app.post("/analyze")
 async def analyze_audio(audio: UploadFile = File(...), db: Session = Depends(get_db)):
     try:
         audio_data = await audio.read()  # Read the audio file data
         text = process_audio(audio_data)
         sentiment = analyze_sentiment(text)
-        result = create_analysis_result(db, text=text, sentiment=sentiment["label"])
-        return JSONResponse(
-            content={
-                "id": result.id,
-                "text": result.text,
-                "sentiment": {"label": sentiment["label"], "score": sentiment["score"]},
-            }
-        )
+        result = create_analysis_result(db, text=text, sentiment=sentiment['label'])
+        return JSONResponse(content={
+            "id": result.id,
+            "text": result.text,
+            "sentiment": {"label": sentiment['label'], "score": sentiment['score']},
+            "created_at": result.created_at.isoformat(),
+            "updated_at": result.updated_at.isoformat()
+        })
     except Exception as e:
         logger.error(f"Error processing audio: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error processing audio: {str(e)}")
 
-
 @app.get("/results")
-async def get_results(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    results = db.query(AnalysisResult).offset(skip).limit(limit).all()
-    total = db.query(AnalysisResult).count()
-    return {
-        "total": total,
-        "results": [
-            {"id": result.id, "text": result.text, "sentiment": result.sentiment}
-            for result in results
-        ],
-    }
-
+async def get_results(db: Session = Depends(get_db)):
+    results = db.query(AnalysisResult).all()
+    return [{
+        "id": result.id,
+        "text": result.text,
+        "sentiment": result.sentiment,
+        "created_at": result.created_at.isoformat(),
+        "updated_at": result.updated_at.isoformat()
+    } for result in results]
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
